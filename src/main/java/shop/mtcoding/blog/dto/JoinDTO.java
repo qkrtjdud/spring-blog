@@ -11,6 +11,7 @@ import lombok.Setter;
  * 4. MIME타입 : x-www-form-urlencoded
  * 5. 응답 : view를 응답함
  */
+
 @Getter
 @Setter
 public class JoinDTO {

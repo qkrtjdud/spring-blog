@@ -5,22 +5,37 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import shop.mtcoding.blog.dto.JoinDTO;
+import shop.mtcoding.blog.repository.UserRepositiory;
 
 @Controller
 public class UserCotroller {
 
+    @Autowired
+    private UserRepositiory userRepositiory;
+
     // 실무
     @PostMapping("/join")
     public String join(JoinDTO joinDTO) {
-        // username=ssar&password=1234&email=ssar@nate.com
-        System.out.println("username : " + joinDTO.getUsername());
-        System.out.println("password : " + joinDTO.getPassword());
-        System.out.println("email : " + joinDTO.getEmail());
+
+        // validation check(유효성 검사)
+        // null 값과 공백이 들어올수 없도록 막음
+        if (joinDTO.getUsername() == null || joinDTO.getUsername().isEmpty()) {
+            return "redirect:/40x";
+        }
+        if (joinDTO.getPassword() == null || joinDTO.getPassword().isEmpty()) {
+            return "redirect:/40x";
+        }
+        if (joinDTO.getEmail() == null || joinDTO.getEmail().isEmpty()) {
+            return "redirect:/40x";
+        }
+
+        userRepositiory.save(joinDTO); // 핵심 기능
         return "redirect:/loginForm";
     }
 
