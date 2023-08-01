@@ -6,18 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import shop.mtcoding.blog.dto.JoinDTO;
 import shop.mtcoding.blog.dto.LoginDTO;
 import shop.mtcoding.blog.model.User;
-import shop.mtcoding.blog.repository.UserRepositiory;
+import shop.mtcoding.blog.repository.UserRepository;
 
 @Controller
 public class UserCotroller {
 
     @Autowired
-    private UserRepositiory userRepositiory;
+    private UserRepository userRepository;
 
     @Autowired
     private HttpSession session; // request 는 가방, session은 서랍
@@ -43,7 +42,7 @@ public class UserCotroller {
         }
 
         try {
-            User user = userRepositiory.findByUsernameAndPassword(loginDTO);
+            User user = userRepository.findByUsernameAndPassword(loginDTO);
             session.setAttribute("sessionUser", user);
             return "redirect:/";
         } catch (Exception e) {
@@ -69,7 +68,7 @@ public class UserCotroller {
         }
 
         try {
-            userRepositiory.save(joinDTO);
+            userRepository.save(joinDTO);
         } catch (Exception e) {
             return "redirect:/50x";
         }
