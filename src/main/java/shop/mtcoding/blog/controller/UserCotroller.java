@@ -3,8 +3,6 @@ package shop.mtcoding.blog.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +33,12 @@ public class UserCotroller {
             return "redirect:/40x";
         }
 
-        userRepositiory.save(joinDTO); // 핵심 기능
+        try {
+            userRepositiory.save(joinDTO);
+        } catch (Exception e) {
+            return "redirect:/50x";
+        }
+        // 핵심 기능
         return "redirect:/loginForm";
     }
 
@@ -77,9 +80,13 @@ public class UserCotroller {
     // return "redirect:/loginForm";
     // }
 
+    // ip주소 부여 : 10.5.9.200:8080 -> mtcoding.com:8080
+    // localhost, 127.0.0.1
+    // a태그 form태그 method=get
     @GetMapping("/joinForm")
     public String joinForm() {
-        return "user/joinForm";
+        // templates//user/joinForm.mustache
+        return "user/joinForm"; // ViewResolver
     }
 
     @GetMapping("/loginForm")
