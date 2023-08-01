@@ -1,14 +1,16 @@
 package shop.mtcoding.blog.controller;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import shop.mtcoding.blog.dto.JoinDTO;
+import shop.mtcoding.blog.dto.LoginDTO;
+import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.UserRepositiory;
 
 @Controller
@@ -16,6 +18,39 @@ public class UserCotroller {
 
     @Autowired
     private UserRepositiory userRepositiory;
+
+    @Autowired
+    private HttpSession session; // request 는 가방, session은 서랍
+
+    // @ResponseBody
+    // @GetMapping("/test/login")
+    // public String testLogin() {
+    // User sessionUser = (User) session.getAttribute("sessionUser");
+    // if (sessionUser == null) {
+    // return "로그인이 되지 않았습니다";
+    // } else {
+    // return "로그인 됨 : " + sessionUser.getUsername();
+    // }
+    // }
+
+    @PostMapping("/login")
+    public String login(LoginDTO loginDTO) {
+        if (loginDTO.getUsername() == null || loginDTO.getUsername().isEmpty()) {
+            return "redirect:/40x";
+        }
+        if (loginDTO.getPassword() == null || loginDTO.getPassword().isEmpty()) {
+            return "redirect:/40x";
+        }
+
+        try {
+            User user = userRepositiory.findByUsernameAndPassword(loginDTO);
+            session.setAttribute("sessionUser", user);
+            return "redirect:/";
+        } catch (Exception e) {
+            return "redirect:/exLogin";
+        }
+
+    }
 
     // 실무
     @PostMapping("/join")
@@ -101,6 +136,7 @@ public class UserCotroller {
 
     @GetMapping("/logout")
     public String logout() {
+        session.invalidate(); // 세션 무효화(세션 전체를 비움 - 서랍 비우는 거)
         return "redirect:/";
     }
 }
