@@ -24,6 +24,34 @@ public class BoardController {
     @Autowired
     private BoardRepository boardRepository;
 
+    @PostMapping("/board/{id}/delete")
+    public String delete(@PathVariable Integer id) { // 1.PathVariable 값 받기
+        // 2.인증검사 ->정상적인 접근에서는 이미 로그인 부분에서 막히지만
+        // 포스트맨으로(비정상적인 접근) 접근하면 다 뚫리기 때문에
+
+        // session에 접근해서 sessionUser 키값을 가져오세요
+        // null 이면, 로그인페이지로 보내고
+        // nul 아니면 3번 실행
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        // 3.권한 검사
+        Board board = boardRepository.findById(id);
+        if (board.getUser().getId() != sessionUser.getId()) {
+            return "redirect:/40x";
+        }
+
+        // boardRepository.deleteById(id); 호출하세요-> 리턴을 받지 마세요
+        // 4.모델에 접근해서 삭제 delete from board_tb where id =:id
+
+        boardRepository.deleteById(id);
+        System.out.println("확인: " + id);
+
+        return "redirect:/";
+    }
+
     @GetMapping({ "/", "/board" })
     public String index(@RequestParam(defaultValue = "0") Integer page, HttpServletRequest request) {
         // 1.유효성 검사 x ->http body 데이터가 없으니깐 필요 x, get요청,프로토콜
@@ -41,7 +69,7 @@ public class BoardController {
 
         System.out.println("테스트: " + boardList.size());
         System.out.println("테스트: " + boardList.get(0).getTitle());
-
+        // 인덱스값이 없는데 자꾸 찾아서 터짐
         request.setAttribute("boardList", boardList);
         request.setAttribute("prevpage", page - 1);
         request.setAttribute("nextpage", page + 1);
@@ -83,8 +111,21 @@ public class BoardController {
 
     // localhost:8080/board/1
     // localhost:8080/board/50
-    @GetMapping("/board/{id}")
-    public String detail(@PathVariable Integer id) {
-        return "board/detail";
+    @GetMapping("/board/{id}") // PK를 조회
+    public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(controller)
+        User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근
+        Board board = boardRepository.findById(id); // M(model)
+
+        boolean pageOwner = false;
+        if (sessionUser != null) {
+            System.out.println("테스트 세션 ID : " + sessionUser.getId());
+            System.out.println("테스트 세션 board.getUser().getId() : " + board.getUser().getId());
+            pageOwner = sessionUser.getId() == board.getUser().getId();
+            System.out.println("테스트 : pageOwner : " + pageOwner);
+        }
+
+        request.setAttribute("board", board);
+        request.setAttribute("pageOwner", pageOwner);
+        return "board/detail"; // V(veiw)
     }
 }
