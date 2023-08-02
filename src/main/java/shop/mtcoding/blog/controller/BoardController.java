@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import shop.mtcoding.blog.dto.UpdateDTO;
 import shop.mtcoding.blog.dto.WriteDTO;
 import shop.mtcoding.blog.model.Board;
 import shop.mtcoding.blog.model.User;
@@ -24,14 +25,36 @@ public class BoardController {
     @Autowired
     private BoardRepository boardRepository;
 
+    @PostMapping("/board/{id}/update")
+    public String update(@PathVariable Integer id, UpdateDTO updateDTO) {
+        // 1.인증검사
+        // 2.권한검사
+
+        // 3.핵심로직
+        // update board_tb set title =:title, content =:content where id =:id;
+        boardRepository.update(updateDTO, id);
+        return "redirect:/board/" + id;
+    }
+
+    @GetMapping("/board/{id}/updateForm")
+    public String updateFrom(@PathVariable Integer id, HttpServletRequest request) {
+        // 1.인증검사
+        // 2.권한검사
+
+        // 3.핵심로직
+        Board board = boardRepository.findById(id);
+        request.setAttribute("board", board);
+
+        return "board/updateForm";
+    }
+
     @PostMapping("/board/{id}/delete")
     public String delete(@PathVariable Integer id) { // 1.PathVariable 값 받기
         // 2.인증검사 ->정상적인 접근에서는 이미 로그인 부분에서 막히지만
         // 포스트맨으로(비정상적인 접근) 접근하면 다 뚫리기 때문에
 
         // session에 접근해서 sessionUser 키값을 가져오세요
-        // null 이면, 로그인페이지로 보내고
-        // nul 아니면 3번 실행
+        // null 이면 로그인페이지로 보내고, nul 아니면 3번 실행
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
             return "redirect:/loginForm";
