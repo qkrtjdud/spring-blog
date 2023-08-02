@@ -26,10 +26,19 @@ public class BoardController {
 
     @GetMapping({ "/", "/board" })
     public String index(@RequestParam(defaultValue = "0") Integer page, HttpServletRequest request) {
-        // 1.유효성 검사 x
-        // 2.인증검사 x
+        // 1.유효성 검사 x ->http body 데이터가 없으니깐 필요 x, get요청,프로토콜
+        // 2.인증검사 x ->로그인 안해도 누구나 볼수 있게 구현 할거라서
 
-        List<Board> boardList = boardRepository.FindAll(page);
+        List<Board> boardList = boardRepository.findAll(page); // 현재 페이지 =1
+        int totalCount = boardRepository.count(); // totalpage =5
+
+        System.out.println("테스트 : totalCount :" + totalCount);
+        int totalPage = totalCount / 3; // totalpage=1
+        if (totalCount % 3 > 0) {
+            totalPage = totalPage + 1; // totoalpage=2
+        }
+        boolean last = totalPage - 1 == page;
+
         System.out.println("테스트: " + boardList.size());
         System.out.println("테스트: " + boardList.get(0).getTitle());
 
@@ -37,7 +46,9 @@ public class BoardController {
         request.setAttribute("prevpage", page - 1);
         request.setAttribute("nextpage", page + 1);
         request.setAttribute("first", page == 0 ? true : false);
-        request.setAttribute("last", false);
+        request.setAttribute("last", last);
+        request.setAttribute("totalPage", totalPage);
+        request.setAttribute("totalCount", totalCount);
         return "index";
     }
 
