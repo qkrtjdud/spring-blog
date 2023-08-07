@@ -3,6 +3,8 @@ package shop.mtcoding.blog.controller;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,16 @@ public class UserCotroller {
 
     @Autowired
     private HttpSession session; // request 는 가방, session은 서랍
+
+    // localhost:8080/check?username=ssar
+    @GetMapping("/check")
+    public ResponseEntity<String> check(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            return new ResponseEntity<String>("유저네임이 중복 되었습니다.", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<String>("사용가능 합니다.", HttpStatus.OK);
+    }
 
     // @ResponseBody
     // @GetMapping("/test/login")
@@ -67,13 +79,14 @@ public class UserCotroller {
             return "redirect:/40x";
         }
 
-        try {
-            userRepository.save(joinDTO);
-        } catch (Exception e) {
+        // DB에 해당 username이 있는지 체크하기
+        User user = userRepository.findByUsername(joinDTO.getUsername());
+        if (user != null) {
             return "redirect:/50x";
         }
-        // 핵심 기능
+        userRepository.save(joinDTO); // 핵심 기능
         return "redirect:/loginForm";
+
     }
 
     // // 정상인

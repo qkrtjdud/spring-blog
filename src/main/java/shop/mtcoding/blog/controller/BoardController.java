@@ -28,7 +28,16 @@ public class BoardController {
     @PostMapping("/board/{id}/update")
     public String update(@PathVariable Integer id, UpdateDTO updateDTO) {
         // 1.인증검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
         // 2.권한검사
+        Board board = boardRepository.findById(id);
+        if (board.getUser().getId() != sessionUser.getId()) {
+            return "redirect:/40x";
+        }
 
         // 3.핵심로직
         // update board_tb set title =:title, content =:content where id =:id;
@@ -70,7 +79,7 @@ public class BoardController {
         // 4.모델에 접근해서 삭제 delete from board_tb where id =:id
 
         boardRepository.deleteById(id);
-        System.out.println("확인: " + id);
+        // System.out.println("확인: " + id);
 
         return "redirect:/";
     }
@@ -90,8 +99,8 @@ public class BoardController {
         }
         boolean last = totalPage - 1 == page;
 
-        System.out.println("테스트: " + boardList.size());
-        System.out.println("테스트: " + boardList.get(0).getTitle());
+        // System.out.println("테스트: " + boardList.size());
+        // System.out.println("테스트: " + boardList.get(0).getTitle());
         // 인덱스값이 없는데 자꾸 찾아서 터짐
         request.setAttribute("boardList", boardList);
         request.setAttribute("prevpage", page - 1);
@@ -144,7 +153,7 @@ public class BoardController {
             System.out.println("테스트 세션 ID : " + sessionUser.getId());
             System.out.println("테스트 세션 board.getUser().getId() : " + board.getUser().getId());
             pageOwner = sessionUser.getId() == board.getUser().getId();
-            System.out.println("테스트 : pageOwner : " + pageOwner);
+            // System.out.println("테스트 : pageOwner : " + pageOwner);
         }
 
         request.setAttribute("board", board);
