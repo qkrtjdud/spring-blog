@@ -11,19 +11,42 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import shop.mtcoding.blog.dto.BoardDetailDTO;
 import shop.mtcoding.blog.dto.UpdateDTO;
 import shop.mtcoding.blog.dto.WriteDTO;
 import shop.mtcoding.blog.model.Board;
+import shop.mtcoding.blog.model.Reply;
 import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.BoardRepository;
+import shop.mtcoding.blog.repository.ReplyRepository;
 
 @Controller
 public class BoardController {
     @Autowired
     private HttpSession session;
+
     @Autowired
     private BoardRepository boardRepository;
+
+    @Autowired
+    private ReplyRepository replyRepository;
+
+    @ResponseBody
+    @GetMapping("/test/reply")
+    public List<Reply> test2() {
+        List<Reply> replys = replyRepository.findByBoardId(1);
+        return replys;
+    }
+
+    /* 보드만 들고왔는데 유저 오브젝트도 들고 있으니, 유저 내용도 다 제이슨으로 들고옴 */
+    @ResponseBody
+    @GetMapping("/test/board/1")
+    public Board test() {
+        Board board = boardRepository.findById(1);
+        return board;
+    }
 
     @PostMapping("/board/{id}/update")
     public String update(@PathVariable Integer id, UpdateDTO updateDTO) {
@@ -146,19 +169,25 @@ public class BoardController {
     @GetMapping("/board/{id}") // PK를 조회
     public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(controller)
         User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근
-        Board board = boardRepository.findById(id); // M(model)
+        List<BoardDetailDTO> dtos = null; // M(model)
+        if (sessionUser == null) {
+            dtos = boardRepository.findByIdJoinReply(id, null);
+        } else {
+            dtos = boardRepository.findByIdJoinReply(id, sessionUser.getId());
+        }
 
         boolean pageOwner = false;
         if (sessionUser != null) {
             // System.out.println("테스트 세션 ID : " + sessionUser.getId());
             // System.out.println("테스트 세션 board.getUser().getId() : " +
             // board.getUser().getId());
-            pageOwner = sessionUser.getId() == board.getUser().getId();
-            // System.out.println("테스트 : pageOwner : " + pageOwner);
+            pageOwner = sessionUser.getId() == dtos.get(0).getBoardUserId();
+
         }
 
-        request.setAttribute("board", board);
+        request.setAttribute("dtos", dtos);
         request.setAttribute("pageOwner", pageOwner);
         return "board/detail"; // V(veiw)
+
     }
 }

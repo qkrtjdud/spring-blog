@@ -7,4 +7,5 @@ insert into board_tb(title, content, user_id, created_at) values('제목3', '내
 insert into board_tb(title, content, user_id, created_at) values('제목4', '내용4', 2, now());
 insert into board_tb(title, content, user_id, created_at) values('제목5', '내용5', 2, now());
 
-insert into reply_tb(board_id, comment, user_id) values('5', '반갑습니당!',1);
+insert into reply_tb(board_id, comment, user_id) values(1, '반갑습니당!',1);
+insert into reply_tb(board_id, comment, user_id) values(1, '안녕!',1);

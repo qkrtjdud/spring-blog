@@ -1,5 +1,7 @@
 package shop.mtcoding.blog.repository;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -19,6 +21,21 @@ public class ReplyRepository {
 
     @Autowired
     private EntityManager em;
+
+    @Transactional
+    public void deleteById(Integer id) {
+        Query query = em.createNativeQuery("delete from reply_tb where id =:id");
+        query.setParameter("id", id);
+        query.executeUpdate();
+
+    }
+
+    public List<Reply> findByBoardId(Integer boardId) {
+        Query query = em.createNativeQuery("select * from reply_tb where board_id = :boardId", Reply.class);
+        query.setParameter("boardId", boardId);
+        return query.getResultList();
+
+    }
 
     @Transactional
     public void save(ReplyWriteDTO replyWriteDTO, Integer userId) {

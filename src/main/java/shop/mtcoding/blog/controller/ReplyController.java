@@ -1,14 +1,18 @@
 package shop.mtcoding.blog.controller;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import shop.mtcoding.blog.dto.BoardDetailDTO;
 import shop.mtcoding.blog.dto.ReplyWriteDTO;
+import shop.mtcoding.blog.model.Board;
+import shop.mtcoding.blog.model.Reply;
 import shop.mtcoding.blog.model.User;
+import shop.mtcoding.blog.repository.BoardRepository;
 import shop.mtcoding.blog.repository.ReplyRepository;
 
 @Controller
@@ -17,10 +21,32 @@ public class ReplyController {
     private ReplyRepository replyRepository;
 
     @Autowired
+    private BoardRepository boardRepository;
+
+    @Autowired
     private HttpSession session;
 
+    @PostMapping("/reply/{id}/delete")
+    public String delete(@PathVariable Integer id) { // 1.PathVariable 값 받기
+
+        // 2.인증검사 ->정상적인 접근에서는 이미 로그인 부분에서 막히지만
+        // 포스트맨으로(비정상적인 접근) 접근하면 다 뚫리기 때문에
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        replyRepository.deleteById(id);
+
+        System.out.println("확인(댓글Id): " + id);
+
+        System.out.println("확인(보드Id)");
+
+        return "redirect:/board/";
+    }
+
     @PostMapping("/reply/save")
-    public String save(ReplyWriteDTO replyWriteDTO, HttpServletRequest request) {
+    public String save(ReplyWriteDTO replyWriteDTO) {
 
         // comment 유효성 검사
         if (replyWriteDTO.getBoardId() == null) {
@@ -37,7 +63,9 @@ public class ReplyController {
 
         // 댓글쓰기
         replyRepository.save(replyWriteDTO, sessionUser.getId());
+        System.out.println("댓글쓰기: " + replyWriteDTO.getBoardId());
         return "redirect:/board/" + replyWriteDTO.getBoardId();
 
     }
+
 }
