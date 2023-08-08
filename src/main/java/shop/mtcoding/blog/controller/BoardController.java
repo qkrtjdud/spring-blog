@@ -92,7 +92,7 @@ public class BoardController {
         List<Board> boardList = boardRepository.findAll(page); // 현재 페이지 =1
         int totalCount = boardRepository.count(); // totalpage =5
 
-        System.out.println("테스트 : totalCount :" + totalCount);
+        // System.out.println("테스트 : totalCount :" + totalCount);
         int totalPage = totalCount / 3; // totalpage=1
         if (totalCount % 3 > 0) {
             totalPage = totalPage + 1; // totoalpage=2
@@ -150,8 +150,9 @@ public class BoardController {
 
         boolean pageOwner = false;
         if (sessionUser != null) {
-            System.out.println("테스트 세션 ID : " + sessionUser.getId());
-            System.out.println("테스트 세션 board.getUser().getId() : " + board.getUser().getId());
+            // System.out.println("테스트 세션 ID : " + sessionUser.getId());
+            // System.out.println("테스트 세션 board.getUser().getId() : " +
+            // board.getUser().getId());
             pageOwner = sessionUser.getId() == board.getUser().getId();
             // System.out.println("테스트 : pageOwner : " + pageOwner);
         }

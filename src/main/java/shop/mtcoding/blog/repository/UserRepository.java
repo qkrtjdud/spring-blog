@@ -40,16 +40,16 @@ public class UserRepository {
 
     @Transactional
     public void save(JoinDTO joinDTO) {
-        System.out.println("테스트:" + 1);
+        // System.out.println("테스트:" + 1);
         Query query = em
                 .createNativeQuery(
                         "insert into user_tb(username, password, email) values(:username, :password, :email)");
-        System.out.println("테스트:" + 2);
+        // System.out.println("테스트:" + 2);
         query.setParameter("username", joinDTO.getUsername());
         query.setParameter("password", joinDTO.getPassword());
         query.setParameter("email", joinDTO.getEmail());
-        System.out.println("테스트:" + 3);
+        // System.out.println("테스트:" + 3);
         query.executeUpdate(); // 쿼리를 전송(DBMS)
-        System.out.println("테스트:" + 4);
+        // System.out.println("테스트:" + 4);
     }
 }
