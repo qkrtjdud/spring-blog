@@ -27,7 +27,7 @@ public class ReplyController {
     private HttpSession session;
 
     @PostMapping("/reply/{id}/delete")
-    public String delete(@PathVariable Integer id) { // 1.PathVariable 값 받기
+    public String delete(@PathVariable Integer id, Integer boardId) { // 1.PathVariable 값 받기
 
         // 2.인증검사 ->정상적인 접근에서는 이미 로그인 부분에서 막히지만
         // 포스트맨으로(비정상적인 접근) 접근하면 다 뚫리기 때문에
@@ -40,9 +40,9 @@ public class ReplyController {
 
         System.out.println("확인(댓글Id): " + id);
 
-        System.out.println("확인(보드Id)");
+        System.out.println("확인(보드Id)" + boardId);
 
-        return "redirect:/board/";
+        return "redirect:/board/" + boardId;
     }
 
     @PostMapping("/reply/save")
