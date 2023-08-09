@@ -7,21 +7,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import shop.mtcoding.blog.dto.BoardDetailDTO;
 import shop.mtcoding.blog.dto.ReplyWriteDTO;
-import shop.mtcoding.blog.model.Board;
 import shop.mtcoding.blog.model.Reply;
 import shop.mtcoding.blog.model.User;
-import shop.mtcoding.blog.repository.BoardRepository;
 import shop.mtcoding.blog.repository.ReplyRepository;
 
 @Controller
 public class ReplyController {
     @Autowired
     private ReplyRepository replyRepository;
-
-    @Autowired
-    private BoardRepository boardRepository;
 
     @Autowired
     private HttpSession session;
@@ -36,10 +30,16 @@ public class ReplyController {
             return "redirect:/loginForm";
         }
 
+        // 권한체크
+        Reply reply = replyRepository.findById(id);
+        if (reply.getUser().getId() == sessionUser.getId()) {
+            return "redirect:/40x"; // 상태코드는 403
+        }
+
+        // 핵심로직
         replyRepository.deleteById(id);
 
         System.out.println("확인(댓글Id): " + id);
-
         System.out.println("확인(보드Id)" + boardId);
 
         return "redirect:/board/" + boardId;

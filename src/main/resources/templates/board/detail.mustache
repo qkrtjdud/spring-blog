@@ -49,7 +49,7 @@
                 </div>
                 {{#replyOwner}}
                 <form action="/reply/{{replyId}}/delete" method="post">
-                <input type="hidden" name="boardId" value="{{dtos.0.boardId}}">
+                <input type="hidden" name="boardId" value="{{boardId}}">
                     <button type="submit" class="btn form-control">🗑</button>
                 </form>
                 {{/replyOwner}}

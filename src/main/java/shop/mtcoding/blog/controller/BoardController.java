@@ -169,6 +169,7 @@ public class BoardController {
     @GetMapping("/board/{id}") // PK를 조회
     public String detail(@PathVariable Integer id, HttpServletRequest request) { // C(controller)
         User sessionUser = (User) session.getAttribute("sessionUser"); // 세션접근
+
         List<BoardDetailDTO> dtos = null; // M(model)
         if (sessionUser == null) {
             dtos = boardRepository.findByIdJoinReply(id, null);

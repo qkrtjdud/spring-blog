@@ -52,4 +52,12 @@ public class ReplyRepository {
         System.out.println("테스트2 아이디: " + userId);
     }
 
+    public Reply findById(Integer id) {
+        Query query = em
+                .createNativeQuery(
+                        "select * from reply_tb where id =:id", Reply.class);
+        query.setParameter("id", id);
+        return (Reply) query.getSingleResult();
+    }
+
 }

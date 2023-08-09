@@ -59,6 +59,7 @@ public class BoardRepository {
         query.executeUpdate();
     }
 
+    // 동적쿼리
     public List<BoardDetailDTO> findByIdJoinReply(Integer boardId, Integer sessionUserId) {
         String sql = "select ";
         sql += "b.id board_id, ";
@@ -69,6 +70,7 @@ public class BoardRepository {
         sql += "r.comment reply_comment, ";
         sql += "r.user_id reply_user_id, ";
         sql += "ru.username reply_user_username, ";
+
         if (sessionUserId == null) {
             sql += "false reply_owner ";
         } else {
@@ -81,6 +83,7 @@ public class BoardRepository {
         sql += "on r.user_id = ru.id ";
         sql += "where b.id = :boardId ";
         sql += "order by r.id desc";
+
         Query query = em.createNativeQuery(sql);
         query.setParameter("boardId", boardId);
         if (sessionUserId != null) {
