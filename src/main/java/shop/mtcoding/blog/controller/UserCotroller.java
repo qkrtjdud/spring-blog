@@ -2,15 +2,18 @@ package shop.mtcoding.blog.controller;
 
 import javax.servlet.http.HttpSession;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import shop.mtcoding.blog.dto.JoinDTO;
 import shop.mtcoding.blog.dto.LoginDTO;
+import shop.mtcoding.blog.dto.UserUpdateDTO;
 import shop.mtcoding.blog.model.User;
 import shop.mtcoding.blog.repository.UserRepository;
 
@@ -54,8 +57,13 @@ public class UserCotroller {
         }
 
         try {
-            User user = userRepository.findByUsernameAndPassword(loginDTO);
-            session.setAttribute("sessionUser", user);
+            User user = userRepository.findByUsername(loginDTO.getUsername());
+            if (BCrypt.checkpw(loginDTO.getPassword(), user.getPassword())) {
+                session.setAttribute("sessionUser", user);
+
+            } else {
+                return "redirect:/exLogin";
+            }
             return "redirect:/";
         } catch (Exception e) {
             return "redirect:/exLogin";
@@ -84,7 +92,9 @@ public class UserCotroller {
         if (user != null) {
             return "redirect:/50x";
         }
+
         userRepository.save(joinDTO); // 핵심 기능
+
         return "redirect:/loginForm";
 
     }
@@ -144,6 +154,26 @@ public class UserCotroller {
     @GetMapping("/user/updateForm")
     public String updateForm() {
         return "user/updateForm";
+    }
+
+    @PostMapping("/user/{id}/update")
+    public String update(@PathVariable Integer id, UserUpdateDTO userUpdateDTO) {
+        // 1.인증검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+
+        // 2.권한검사
+        // Board board = boardRepository.findById(id);
+        // if (board.getUser().getId() != sessionUser.getId()) {
+        // return "redirect:/40x";
+        // }
+
+        // 핵심로직
+        userRepository.update(userUpdateDTO, id);
+        System.out.println("업댓: " + userUpdateDTO.getPassword());
+        return "redirect:/";
     }
 
     @GetMapping("/logout")
