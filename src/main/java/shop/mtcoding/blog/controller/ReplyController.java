@@ -21,9 +21,14 @@ public class ReplyController {
     private HttpSession session;
 
     @PostMapping("/reply/{id}/delete")
-    public String delete(@PathVariable Integer id, Integer boardId) { // 1.PathVariable 값 받기
+    public String delete(@PathVariable Integer id, Integer boardId) { // PathVariable 값 받기
 
-        // 2.인증검사 ->정상적인 접근에서는 이미 로그인 부분에서 막히지만
+        // 유효성 검사
+        if (boardId == null) {
+            return "redirect:/40x";
+        }
+
+        // 인증검사 ->정상적인 접근에서는 이미 로그인 부분에서 막히지만
         // 포스트맨으로(비정상적인 접근) 접근하면 다 뚫리기 때문에
         User sessionUser = (User) session.getAttribute("sessionUser");
         if (sessionUser == null) {
