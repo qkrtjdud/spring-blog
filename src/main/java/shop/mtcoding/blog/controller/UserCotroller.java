@@ -1,5 +1,6 @@
 package shop.mtcoding.blog.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -62,7 +63,7 @@ public class UserCotroller {
                 session.setAttribute("sessionUser", user);
 
             } else {
-                return "redirect:/exLogin";
+                return "redirect:/loginForm";
             }
             return "redirect:/";
         } catch (Exception e) {
@@ -93,8 +94,11 @@ public class UserCotroller {
             return "redirect:/50x";
         }
 
-        userRepository.save(joinDTO); // 핵심 기능
+        // 비밀번호 해싱 처리
+        String encPassword = BCrypt.hashpw(joinDTO.getPassword(), BCrypt.gensalt());
+        joinDTO.setPassword(encPassword);
 
+        userRepository.save(joinDTO); // 핵심 기능
         return "redirect:/loginForm";
 
     }
@@ -152,7 +156,14 @@ public class UserCotroller {
     }
 
     @GetMapping("/user/updateForm")
-    public String updateForm() {
+    public String updateForm(HttpServletRequest request) { 
+         // 1.인증검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if (sessionUser == null) {
+            return "redirect:/loginForm";
+        }
+        User user = userRepository.findByUsername(sessionUser.getUsername()); //세션값을 쓰면 권한체크 할 필요 없음
+        request.setAttribute("user", user);
         return "user/updateForm";
     }
 
@@ -170,9 +181,12 @@ public class UserCotroller {
         // return "redirect:/40x";
         // }
 
-        // 핵심로직
-        userRepository.update(userUpdateDTO, id);
-        System.out.println("업댓: " + userUpdateDTO.getPassword());
+        
+        // 해시값으로 변경
+        String encPassword = BCrypt.hashpw(userUpdateDTO.getPassword(), BCrypt.gensalt());
+        userUpdateDTO.setPassword(encPassword);
+        userRepository.update(userUpdateDTO, id); // 핵심로직
+        //System.out.println("업댓: " + userUpdateDTO.getPassword());
         return "redirect:/";
     }
 
